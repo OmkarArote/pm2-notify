@@ -16,7 +16,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export const config = {
   // https://nodemailer.com/message
   mail: {
-    subject: `Error - ${USER}@${HOSTNAME}:${NODE_ENV}`,
+    subject: `${USER}@${HOSTNAME}:${NODE_ENV}`,
     from: env.MAIL_FROM || 'me <from@test.com>',
     to: env.MAIL_TO || 'to@test.com',
   },
@@ -37,6 +37,7 @@ export const config = {
    */
   target: {
     'log:err': PM2_APPS.split(',').map((appName) => appName.trim()),
+    'log:out': PM2_APPS.split(',').map((appName) => appName.trim()),
     // 'log:err': ['appName'], // stderr
     // 'log:out': ['appName'], // stdout, As required
   },

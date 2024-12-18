@@ -22,7 +22,7 @@ events.forEach((event: Target) => {
   queues[event] = [];
 });
 
-async function sendMail(): Promise<void> {
+async function sendMail(eventName: Target): Promise<void> {
   const logs: Log[] = [];
 
   for (const [event, qdata] of Object.entries(queues)) {
@@ -45,7 +45,7 @@ async function sendMail(): Promise<void> {
       throw new Error(JSON.stringify(errors));
     }
 
-    const info = await transporter.sendMail({ html });
+    const info = await transporter.sendMail({ subject: `${eventName || 'log:err'}-${config.mail.subject}`, html });
     console.log('SendMail', info);
   } catch (err) {
     console.error(err);
@@ -65,9 +65,14 @@ function eventBus(event: Target, packet: Packet): void {
     message: packet.data,
   });
 
-  if (!timeout) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    timeout = setTimeout(sendMail, config.timeout);
+  if (event === 'log:err') {
+    if (!timeout) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      timeout = setTimeout(() => sendMail(event), config.timeout);
+    }
+  } else if (packet.data.startsWith('BROADCST:EMAIL')) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    sendMail(event);
   }
 }
 
