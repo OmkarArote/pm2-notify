@@ -70,7 +70,7 @@ function eventBus(event: Target, packet: Packet): void {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       timeout = setTimeout(() => sendMail(event), config.timeout);
     }
-  } else if (packet.data.startsWith('BROADCST:EMAIL')) {
+  } else if (packet.data.includes('BROADCST:EMAIL')) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     sendMail(event);
   }
