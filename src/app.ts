@@ -16,6 +16,17 @@ const template = handlebars.compile(fs.readFileSync(config.template, 'utf8'));
 // Create the mail transporter
 const transporter = createTransport(config.smtp, { ...config.mail });
 
+// Verify SMTP connection before starting the app
+async function verifySmtpConnection() {
+  try {
+    await transporter.verify();
+    console.log('SMTP server is ready to take messages');
+  } catch (err) {
+    console.error('SMTP connection failed:', err);
+    process.exit(1);
+  }
+}
+
 // List of PM2 log event types to listen for
 const eventTypes = <[Target]>Object.keys(config.target);
 // Queue for each event type
@@ -83,6 +94,9 @@ function handleEvent(event: Target, packet: Packet): void {
 
 // Main async startup
 (async (): Promise<void> => {
+  // Check SMTP connection first
+  await verifySmtpConnection();
+
   // Connect to PM2
   await promisify(pm2.connect).bind(pm2)();
   console.log('[PM2] Log streaming connected');
