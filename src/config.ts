@@ -24,9 +24,12 @@ export const config = {
   smtp: {
     host: env.SMTP_HOST || 'smtp.gmail.com',
     port: Number(env.SMTP_PORT) || 587,
-    secure: false,
-    auth: {
-      user: env.SMTP_USER,
+    // Secure: true for port 465 (SSL), false for others (STARTTLS). Can override with SMTP_SECURE env.
+    secure: env.SMTP_SECURE !== undefined
+      ? env.SMTP_SECURE === 'true'
+      : Number(env.SMTP_PORT) === 465,
+      auth: {
+        user: env.SMTP_USER,
       pass: env.SMTP_PASS,
     },
   },
